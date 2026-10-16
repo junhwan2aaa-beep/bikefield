@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>바이크필드</title>
+<meta name="theme-color" content="#0E1014">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="바이크필드">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (max-width:600px){
+  html,body{height:100%;overflow:hidden}
+  body{padding:0!important;background:#0E1014!important;background-image:none!important}
+  :root{padding:0}
+  .wrap{display:block!important}
+  .phone{height:100dvh!important;min-height:0!important;max-width:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  .appbar{padding-top:calc(14px + env(safe-area-inset-top,0px))}
+  .tabs{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  .cta,.composer{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+  .notes{display:none!important}
+  .fab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+</style>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=Saira+Condensed:ital,wght@1,700;1,800;1,900&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: 데스크톱은 폰 프로토타입(좌) + 기획 노트(우), 모바일은 앱 → 노트 순. 의도적으로 다크 단일 테마(피트 개러지 톤) */
+:root{
+  --bg:#08090B; --phone:#0E1014; --s1:#15181E; --s2:#1E222A; --s3:#272C36; --line:#2B313B;
+  --ink:#F3F4F6; --muted:#8B94A1; --dim:#5D6572;
+  --amber:#FFB000; --heat:#FF6A00; --amber-ink:#160F00; --steel:#86AED3;
+  --safe:#3DD68C; --safe-bg:rgba(61,214,140,.12); --warn:#FF6B4A; --warn-bg:rgba(255,107,74,.12); --amber-bg:rgba(255,176,0,.12);
+  --f-race:"Saira Condensed","Black Han Sans",sans-serif;
+  --f-display:"Black Han Sans","Noto Sans KR",sans-serif;
+  --f-body:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px;
+  background-image:radial-gradient(900px 500px at 10% -10%,rgba(255,122,0,.10),transparent 60%),radial-gradient(700px 500px at 100% 0%,rgba(134,174,211,.07),transparent 60%)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.wrap{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:420px minmax(0,1fr);gap:48px;align-items:start}
+@media (max-width:920px){.wrap{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- phone ---------- */
+.phone{background:var(--phone);border:1px solid var(--line);border-radius:34px;overflow:hidden;height:min(860px,calc(100dvh - 48px));min-height:640px;
+  display:flex;flex-direction:column;position:relative;max-width:440px;width:100%;margin:0 auto;
+  box-shadow:0 0 0 6px #121419,0 0 0 7px #23272F,0 40px 80px -30px rgba(0,0,0,.9)}
+@media (max-width:920px){.phone{height:min(840px,calc(100dvh - 32px))}}
+.appbar{display:flex;align-items:center;gap:8px;padding:14px 14px 10px;min-height:58px;background:linear-gradient(var(--phone),rgba(14,16,20,.92));position:relative;z-index:2}
+.appbar h1{margin:0;font-size:17px;font-weight:900;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em}
+.appbar .sub{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.brand{flex:1;display:flex;align-items:center;gap:8px}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--amber),var(--heat));display:grid;place-items:center;color:var(--amber-ink)}
+.brand .wm{font-family:var(--f-race);font-style:italic;font-weight:900;font-size:24px;letter-spacing:.02em;line-height:1}
+.brand .wm span{color:var(--amber)}
+.ib{border:0;background:var(--s1);width:36px;height:36px;border-radius:11px;display:grid;place-items:center;position:relative;flex:none}
+.ib:hover{background:var(--s2)}
+.ib .dot{position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--heat);color:#fff;font-size:10px;font-weight:900;display:grid;place-items:center;transform:translate(40%,-40%);font-family:var(--f-num)}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:rgba(14,16,20,.96);border-top:1px solid var(--line);padding:4px 6px 8px}
+.tabs button{border:0;background:none;padding:8px 0 4px;font-size:10.5px;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;font-weight:500}
+.tabs button[aria-current="page"]{color:var(--ink);font-weight:700}
+.tabs button[aria-current="page"]::before{content:"";position:absolute;top:0;width:22px;height:3px;border-radius:0 0 3px 3px;background:var(--amber);box-shadow:0 0 12px var(--amber)}
+.tabs button[aria-current="page"] svg{color:var(--amber)}
+.tabs .dot{position:absolute;top:4px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--heat);color:#fff;font-size:10px;font-weight:900;display:grid;place-items:center;font-family:var(--f-num)}
+
+.sec{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.sec-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec-h h2{margin:0;font-size:16px;font-weight:900;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.sec-h h2 i{font-family:var(--f-race);font-style:italic;font-weight:800;color:var(--amber);font-size:13px;letter-spacing:.06em}
+.link{border:0;background:none;color:var(--muted);font-size:12px;padding:0}
+
+/* garage hero */
+.garage{position:relative;border-radius:22px;padding:16px;overflow:hidden;background:
+  radial-gradient(140% 90% at 100% 0%,rgba(255,122,0,.35),transparent 55%),linear-gradient(160deg,#1C2029,#111318);border:1px solid #333A46;display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:8px}
+.garage::after{content:"";position:absolute;inset:auto -10% 0 -10%;height:42%;background:repeating-linear-gradient(100deg,rgba(255,255,255,.035) 0 2px,transparent 2px 14px);pointer-events:none}
+.garage .lbl{font-family:var(--f-race);font-style:italic;font-weight:800;font-size:12px;letter-spacing:.14em;color:var(--amber)}
+.garage .nm{font-family:var(--f-display);font-size:26px;line-height:1.1;margin-top:2px}
+.garage .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.garage .acts{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;position:relative;z-index:1}
+.pill{border:1px solid #3A414D;background:rgba(255,255,255,.04);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700}
+.pill.hot{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.tach{position:relative;z-index:1;align-self:center}
+.tach svg{width:128px;height:auto;display:block}
+.tach .v{position:absolute;left:0;right:0;top:52px;text-align:center}
+.tach .v b{font-family:var(--f-race);font-style:italic;font-weight:900;font-size:28px;line-height:1;display:block}
+.tach .v span{font-size:10px;color:var(--muted)}
+
+.search{display:flex;gap:10px;align-items:center;background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--muted)}
+.search input{border:0;background:none;outline:none;flex:1;min-width:0;font:inherit;color:var(--ink)}
+.search input::placeholder{color:var(--dim)}
+
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}
+.quick button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;font-weight:500;color:var(--ink);padding:0}
+.quick .qi{width:52px;height:52px;border-radius:16px;background:var(--s1);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink);transition:transform .15s,border-color .15s}
+.quick button:hover .qi{border-color:var(--amber);color:var(--amber);transform:translateY(-2px)}
+.quick .qi.hot{background:linear-gradient(135deg,var(--amber),var(--heat));border-color:transparent;color:var(--amber-ink)}
+
+.hs{display:flex;gap:12px;overflow-x:auto;margin:0 -16px;padding:0 16px 6px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+
+/* bike visuals */
+.bv{position:relative;aspect-ratio:16/10;border-radius:16px;overflow:hidden;display:grid;place-items:center;max-width:100%;isolation:isolate}
+.bv::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 70% at 50% 110%,rgba(0,0,0,.6),transparent),repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 22px);z-index:-1}
+.bv svg.bike{width:78%;height:auto;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.bv .tl{position:absolute;left:8px;top:8px;display:flex;gap:4px}
+.bv .num{position:absolute;right:10px;bottom:4px;font-family:var(--f-race);font-style:italic;font-weight:900;font-size:34px;line-height:1;color:rgba(255,255,255,.12)}
+
+.feat{flex:0 0 268px;scroll-snap-align:start;border:0;background:var(--s1);border-radius:20px;padding:8px;text-align:left;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.feat .in{padding:0 6px 6px;display:flex;flex-direction:column;gap:2px}
+.feat .t{font-weight:900;font-size:15px}
+.feat .s{font-size:12px;color:var(--muted)}
+.feat .row2{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
+
+.price{font-family:var(--f-race);font-style:italic;font-weight:800;font-variant-numeric:tabular-nums;font-size:20px;letter-spacing:.01em;line-height:1.1}
+.price small{font-family:var(--f-body);font-style:normal;font-weight:500;font-size:12px;margin-left:2px;color:var(--muted)}
+
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap;line-height:1.3}
+.chip.center{background:var(--ink);color:var(--phone)}
+.chip.private{background:rgba(0,0,0,.45);color:var(--ink);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(4px)}
+.chip.safe{background:var(--safe-bg);color:var(--safe)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.amber{background:var(--amber-bg);color:var(--amber)}
+.chip.steel{background:rgba(134,174,211,.14);color:var(--steel)}
+
+.filters{display:flex;gap:6px;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:none;border:1px solid var(--line);background:var(--s1);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:500;color:var(--muted)}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--phone);border-color:var(--ink);font-weight:700}
+
+.row{display:grid;grid-template-columns:124px minmax(0,1fr);gap:12px;padding:10px;border:1px solid var(--line);background:var(--s1);border-radius:18px;text-align:left;width:100%}
+.row .bv{border-radius:12px}
+.row .bv .num{font-size:24px}
+.meta{display:flex;flex-direction:column;gap:2px;min-width:0;justify-content:center}
+.meta .t{font-weight:900;font-size:14.5px}
+.meta .s{font-size:11.5px;color:var(--muted)}
+.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+.fab{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:84px;border:0;border-radius:999px;padding:13px 18px;background:linear-gradient(135deg,var(--amber),var(--heat));color:var(--amber-ink);font-weight:900;display:flex;gap:6px;align-items:center;box-shadow:0 10px 24px -6px rgba(255,106,0,.6);z-index:3}
+
+.odo{display:inline-flex;gap:2px}
+.odo i{font-style:normal;font-family:var(--f-num);font-weight:700;background:#000;color:var(--ink);border:1px solid #2F3540;border-radius:4px;padding:1px 5px;font-size:15px;font-variant-numeric:tabular-nums}
+.odo i.last{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
+
+.card{background:var(--s1);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card > b{font-size:14px}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin:0}
+.kv div{display:flex;flex-direction:column}
+.kv dt{font-size:11px;color:var(--muted)}
+.kv dd{margin:0;font-weight:700;font-size:13.5px}
+
+.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.check li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.check li:last-child{border-bottom:0;padding-bottom:0}
+.check .ic{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:900}
+.check .ok .ic{background:var(--safe-bg);color:var(--safe)}
+.check .bad .ic{background:var(--warn-bg);color:var(--warn)}
+.check b{font-size:13.5px;display:block}
+.check span.d{font-size:11.5px;color:var(--muted)}
+
+.range{position:relative;height:30px}
+.range .bar{position:absolute;top:12px;left:0;right:0;height:6px;border-radius:3px;background:var(--s3)}
+.range .band{position:absolute;top:11px;height:8px;background:linear-gradient(90deg,var(--amber),var(--heat));border-radius:4px;opacity:.85}
+.range .pin{position:absolute;top:2px;width:3px;height:26px;background:var(--ink);border-radius:2px;transform:translateX(-1px);box-shadow:0 0 0 3px var(--s1)}
+.rl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--f-num)}
+
+.cta{display:flex;gap:8px;padding:10px 14px;background:var(--phone);border-top:1px solid var(--line)}
+.btn{border:1px solid #3A414D;background:var(--s2);border-radius:14px;padding:13px;font-weight:700;font-size:14px;flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn.primary{background:linear-gradient(135deg,var(--amber),var(--heat));border-color:transparent;color:var(--amber-ink);flex:2;font-weight:900}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(1)}
+
+.shoprow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 12px;padding:12px;border:1px solid var(--line);background:var(--s1);border-radius:16px;text-align:left;width:100%;align-items:center}
+.shoprow .av{grid-row:span 2;width:44px;height:44px;border-radius:13px;background:var(--s3);display:grid;place-items:center;font-family:var(--f-display);font-size:18px;color:var(--amber)}
+.shoprow .t{font-weight:900}
+.shoprow .s{font-size:11.5px;color:var(--muted);grid-column:2/4}
+.shoprow .r{font-size:12px;font-weight:700;text-align:right;font-family:var(--f-num);color:var(--amber)}
+.shoprow .badges{grid-column:2/4;margin-top:2px}
+
+table.rate{width:100%;border-collapse:collapse;font-size:13px}
+table.rate th{font-size:11px;text-align:left;color:var(--muted);font-weight:500;padding:6px 0;border-bottom:1px solid var(--line)}
+table.rate td{padding:10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.rate tr:last-child td{border-bottom:0}
+table.rate td.n{text-align:right;font-family:var(--f-num);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rate .diff{display:block;font-family:var(--f-body);font-size:11px;font-weight:500}
+table.rate .note{display:block;font-size:11px;color:var(--muted)}
+.lo{color:var(--safe)} .hi{color:var(--warn)}
+
+.bars{display:flex;flex-direction:column;gap:12px}
+.bars .b{display:grid;grid-template-columns:96px minmax(0,1fr) 62px;gap:8px;align-items:center;font-size:12px}
+.bars .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bars .track{position:relative;height:12px;background:var(--s3);border-radius:6px}
+.bars .fill{position:absolute;inset:0 auto 0 0;background:#5B6472;border-radius:6px}
+.bars .b.best .fill{background:var(--safe)}
+.bars .avg{position:absolute;top:-5px;bottom:-5px;width:0;border-left:2px dashed var(--amber)}
+.bars .v{text-align:right;font-family:var(--f-num);font-weight:700;font-variant-numeric:tabular-nums}
+.big{display:flex;gap:20px;flex-wrap:wrap}
+.big div span{display:block;font-size:11px;color:var(--muted)}
+
+/* market */
+.mytoggle{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--s1);border:1px solid var(--line);text-align:left;width:100%}
+.mytoggle .sw{margin-left:auto;width:40px;height:24px;border-radius:12px;background:var(--s3);position:relative;flex:none;transition:background .15s}
+.mytoggle .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--ink);transition:transform .15s}
+.mytoggle[aria-pressed="true"] .sw{background:var(--amber)}
+.mytoggle[aria-pressed="true"] .sw::after{transform:translateX(16px);background:var(--amber-ink)}
+.mytoggle b{font-size:13px;display:block}
+.mytoggle span.d{font-size:11.5px;color:var(--muted)}
+.cats{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px 2px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:0 0 66px;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--muted);padding:0}
+.cats .ci{width:56px;height:56px;border-radius:18px;background:var(--s1);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
+.cats button[aria-pressed="true"]{color:var(--ink);font-weight:700}
+.cats button[aria-pressed="true"] .ci{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.prod{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pv{aspect-ratio:1;border-radius:16px;display:grid;place-items:center;position:relative;overflow:hidden;max-width:100%;border:1px solid var(--line)}
+.pv svg.pi{width:46%;height:auto;color:var(--ink);filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.pv .tl{position:absolute;left:7px;top:7px;display:flex;gap:4px;flex-wrap:wrap}
+.prod .st{font-size:11px;color:var(--muted)}
+.prod .t{font-size:13px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prod .price{font-size:17px}
+.mini{flex:0 0 140px;scroll-snap-align:start}
+.biz{border-radius:18px;padding:16px;background:linear-gradient(135deg,#1D2330,#141821);border:1px solid #333B49;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.biz::before{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;border:18px solid rgba(134,174,211,.08)}
+.biz b{font-size:15px}
+.biz p{margin:0;font-size:12px;color:var(--muted);max-width:30ch}
+.biz .tags{display:flex;gap:4px;flex-wrap:wrap}
+.biz button{align-self:flex-start;margin-top:4px}
+
+/* forms */
+form.reg{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lab{font-size:12px;font-weight:700;color:var(--muted)}
+.field input,.field select{border:1px solid var(--line);background:var(--s1);color:var(--ink);border-radius:12px;padding:12px;font:inherit;width:100%}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--s1)}
+.seg button{border:0;background:none;padding:11px 6px;font-weight:500;color:var(--muted);font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--phone);font-weight:900}
+.plate{display:flex;gap:8px}
+.plate input{font-family:var(--f-num);font-weight:700;letter-spacing:.04em}
+.plate button{border:0;background:var(--ink);color:var(--phone);border-radius:12px;padding:0 14px;font-weight:900;white-space:nowrap;font-size:12.5px}
+.hint{font-size:11.5px;color:var(--muted);margin:0}
+.ph{border:1px dashed #3A414D;border-radius:14px;padding:16px 8px;text-align:center;font-size:12px;display:flex;flex-direction:column;gap:2px;align-items:center}
+
+/* chat */
+.thread{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:2px 12px;padding:12px 4px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;width:100%;align-items:center}
+.thread .av{grid-row:span 2;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-family:var(--f-display);font-size:19px;color:var(--amber-ink)}
+.thread .t{font-weight:900;display:flex;gap:6px;align-items:center;min-width:0}
+.thread .t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thread .p{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;grid-column:2}
+.thread .tm{font-size:11px;color:var(--dim);text-align:right}
+.thread .un{justify-self:end;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--heat);color:#fff;font-size:10.5px;font-weight:900;display:grid;place-items:center;font-family:var(--f-num)}
+.pinned{display:flex;gap:10px;align-items:center;margin:0 14px 4px;padding:8px;border-radius:14px;background:var(--s1);border:1px solid var(--line)}
+.pinned .bv,.pinned .pv{width:56px;flex:none;border-radius:10px;aspect-ratio:1}
+.pinned .pv svg.pi{width:60%}
+.pinned .bv svg.bike{width:92%}
+.pinned .meta .t{font-size:13px}
+.pinned button{margin-left:auto;flex:none;border:0;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:900;background:linear-gradient(135deg,var(--amber),var(--heat));color:var(--amber-ink)}
+.msgs{display:flex;flex-direction:column;gap:6px;padding:12px 14px 16px}
+.m{max-width:78%;padding:9px 13px;border-radius:18px;font-size:14px;line-height:1.45;word-break:break-word;white-space:pre-wrap}
+.m.them{align-self:flex-start;background:var(--s2);border-bottom-left-radius:6px}
+.m.me{align-self:flex-end;background:var(--amber);color:var(--amber-ink);border-bottom-right-radius:6px;font-weight:500}
+.mt{font-size:10px;color:var(--dim);margin-top:-2px}
+.mt.me{align-self:flex-end}
+.sys{align-self:center;font-size:11.5px;color:var(--muted);background:var(--s1);border:1px solid var(--line);padding:5px 12px;border-radius:999px;text-align:center;max-width:92%}
+.alert{align-self:stretch;background:var(--warn-bg);border:1px solid rgba(255,107,74,.4);color:var(--ink);border-radius:14px;padding:10px 12px;font-size:12.5px;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px}
+.alert .ic{width:22px;height:22px;border-radius:7px;background:var(--warn);color:#160400;display:grid;place-items:center;font-weight:900;font-size:13px}
+.alert b{color:var(--warn);display:block;font-size:13px}
+.zone{align-self:stretch;background:var(--safe-bg);border:1px solid rgba(61,214,140,.35);border-radius:14px;padding:10px 12px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.zone b{color:var(--safe)}
+.typing{align-self:flex-start;background:var(--s2);border-radius:18px;padding:12px 14px;display:flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.composer{display:flex;flex-direction:column;gap:8px;padding:8px 12px 10px;background:var(--phone);border-top:1px solid var(--line)}
+.qr{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.qr::-webkit-scrollbar{display:none}
+.qr button{flex:none;border:1px solid var(--line);background:var(--s1);border-radius:999px;padding:6px 11px;font-size:12px;color:var(--ink)}
+.qr button.safe{border-color:rgba(61,214,140,.4);color:var(--safe)}
+.cin{display:flex;gap:8px;align-items:center}
+.cin .plus{border:0;width:40px;height:40px;border-radius:12px;background:var(--s1);display:grid;place-items:center;flex:none;color:var(--muted)}
+.cin input{flex:1;min-width:0;border:1px solid var(--line);background:var(--s1);color:var(--ink);border-radius:20px;padding:10px 14px;font:inherit}
+.cin .send{border:0;width:40px;height:40px;border-radius:50%;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;flex:none}
+
+/* sheet / toast */
+.sheet{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:8;backdrop-filter:blur(2px)}
+.sheet .panel{background:var(--s1);width:100%;border-radius:26px 26px 0 0;padding:10px 16px 18px;display:flex;flex-direction:column;gap:14px;max-height:92%;overflow:auto;border-top:1px solid var(--line)}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--s3);align-self:center}
+.sheet h3{margin:0;font-size:18px;font-weight:900}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;position:relative;padding-bottom:14px}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:2px;width:2px;background:var(--s3)}
+.steps .no{width:30px;height:30px;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--f-race);font-style:italic;font-weight:900;font-size:15px;background:var(--s2);position:relative;z-index:1}
+.steps li.done .no{background:var(--safe);border-color:var(--safe);color:#04150C}
+.steps li.now .no{background:var(--amber);border-color:var(--amber);color:var(--amber-ink);box-shadow:0 0 16px rgba(255,176,0,.5)}
+.steps li.done:not(:last-child)::after{background:var(--safe)}
+.steps b{display:block;font-size:14px}
+.steps span{font-size:12px;color:var(--muted)}
+.steps li.later{opacity:.5}
+.toast{position:absolute;left:16px;right:16px;bottom:84px;background:var(--ink);color:var(--phone);padding:12px 14px;border-radius:14px;font-size:13px;font-weight:500;z-index:9}
+.empty{padding:30px 0;text-align:center;color:var(--muted);font-size:13px}
+
+/* ---------- notes ---------- */
+.notes{display:flex;flex-direction:column;gap:30px;min-width:0;padding-top:8px}
+.notes .eyebrow{font-family:var(--f-race);font-style:italic;font-weight:800;font-size:14px;letter-spacing:.16em;color:var(--amber)}
+.notes h1{margin:6px 0 8px;font-family:var(--f-display);font-weight:400;font-size:clamp(40px,6vw,66px);line-height:1;letter-spacing:-.01em}
+.notes h1 .race{display:block;font-family:var(--f-race);font-style:italic;font-weight:900;font-size:.62em;letter-spacing:.03em;color:transparent;-webkit-text-stroke:1.5px var(--muted)}
+.notes header p{margin:0;color:var(--muted);max-width:58ch}
+.notes h2{margin:0 0 12px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:10px}
+.notes h2 i{font-family:var(--f-race);font-style:italic;font-weight:900;color:var(--amber);font-size:18px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.cols > div{background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.cols b{font-size:13.5px}
+.cols span{font-size:12.5px;color:var(--muted)}
+.cols .fix{color:var(--safe);font-weight:700;font-size:12px;margin-top:2px}
+.tw{overflow-x:auto}
+table.plan{width:100%;border-collapse:collapse;font-size:13px;min-width:460px}
+table.plan th,table.plan td{text-align:left;padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.plan th{font-size:11px;color:var(--muted);font-weight:500}
+table.plan td:first-child{font-family:var(--f-race);font-style:italic;font-weight:900;font-size:16px;color:var(--amber);white-space:nowrap}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px;max-width:70ch;color:#C9CED6}
+ul.plain b{color:var(--ink)}
+.watch{background:var(--warn-bg);border:1px solid rgba(255,107,74,.3);border-radius:16px;padding:16px 18px}
+.watch h2 i{color:var(--warn)}
+
+@media (prefers-reduced-motion:no-preference){.toast,.sheet .panel{animation:up .22s ease-out}@keyframes up{from{transform:translateY(14px);opacity:.3}}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none;opacity:.6}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="phone" id="phone" aria-label="바이크필드 앱 프로토타입">
+    <div class="appbar" id="appbar"></div>
+    <div id="pin"></div>
+    <div class="scroll" id="screen"></div>
+    <div id="cta"></div>
+    <nav class="tabs" id="tabs" aria-label="하단 메뉴"></nav>
+    <div id="overlay"></div>
+  </div>
+
+  <section class="notes" aria-label="기획 노트">
+    <header>
+      <div class="eyebrow">OPERATION · BIKEFIELD v0.2</div>
+      <h1>바이크필드<span class="race">EVERYTHING ON TWO WHEELS</span></h1>
+      <p>오토바이 중고거래, 용품·파츠 마켓, 정비소 찾기와 단가 비교, 안심 채팅까지 한 앱에서. 왼쪽 앱은 실제로 눌러지고 채팅도 주고받을 수 있어요. 매물·상품·업체는 모두 예시예요.</p>
+    </header>
+
+    <div>
+      <h2><i>01</i>이번 버전에서 바뀐 것</h2>
+      <div class="cols">
+        <div><b>안심 채팅</b><span>매물·상품·정비소 어디서든 채팅이 열리고, 계좌번호나 외부 메신저 유도를 자동으로 잡아 경고해요.</span><span class="fix">채팅 탭 → “z라이프” 방에서 사기 패턴 확인</span></div>
+        <div><b>마켓 (용품·파츠·부품)</b><span>용품점, 파츠·튜닝 업체, 순정부품·도매 업체가 입점해서 직접 팔아요. 내 바이크 호환 필터 지원.</span><span class="fix">마켓 탭 → “내 바이크 호환만” 켜기</span></div>
+        <div><b>내 차고</b><span>내 바이크를 등록하면 오일 교환 시기, 호환 파츠, 정비 예약이 하나로 이어져요.</span><span class="fix">홈 상단 카드</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h2><i>02</i>입점 구조</h2>
+      <div class="tw"><table class="plan">
+        <thead><tr><th>유형</th><th>하는 일</th><th>앱에서 받는 것</th></tr></thead>
+        <tbody>
+          <tr><td>센터</td><td>중고 오토바이 매물 판매</td><td>센터 배지, 매물 상단 노출</td></tr>
+          <tr><td>용품점</td><td>헬멧·의류·장갑·블랙박스</td><td>마켓 상점, 채팅 문의</td></tr>
+          <tr><td>파츠</td><td>튜닝 파츠·머플러·스크린</td><td>차종 호환 태그로 정확한 노출</td></tr>
+          <tr><td>부품</td><td>순정·호환 부품, 소모품 도매</td><td>정비소 B2B 주문까지 확장 가능</td></tr>
+          <tr><td>정비소</td><td>정비·장착</td><td>단가표 공개, 예약, 파츠 장착 연계</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div>
+      <h2><i>03</i>돈 버는 구조</h2>
+      <ul class="plain">
+        <li><b>입점 월 구독</b>: 센터·용품점·파츠·부품업체·정비소</li>
+        <li><b>마켓 판매 수수료</b>: 상품 판매 금액의 일정 %</li>
+        <li><b>안심결제 수수료</b>: 중고 거래 금액의 일정 %</li>
+        <li><b>파츠 구매 → 장착 예약 연계 수수료</b>: 앱만의 고리. 파츠 사면 근처 정비소 장착까지 한 번에</li>
+        <li><b>광고·상단 노출</b>, 보험·할부·탁송 제휴</li>
+      </ul>
+    </div>
+
+    <div class="watch">
+      <h2><i>!</i>시작 전에 꼭 확인할 것</h2>
+      <ul class="plain">
+        <li>이륜차 압류·저당·사용신고 이력을 자동 조회할 공공 데이터나 API가 있는지. 없으면 서류 업로드 + 운영팀 검수로 시작</li>
+        <li>안심결제와 마켓 결제는 PG사 에스크로 제휴가 현실적 (직접 돈을 보관하면 금융 관련 등록이 필요할 수 있음)</li>
+        <li>실제 채팅은 실시간 서버(예: Firebase, Supabase 등)가 필요. 계좌번호 감지 같은 필터는 서버에서도 한 번 더 걸러야 함</li>
+        <li>입점 업체 사업자 인증, 통신판매업 신고 여부 확인</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ============ data (모두 예시) ============ */
+const MY_BIKE={name:"PCX125",full:"혼다 PCX125",y:2023,km:8412,oilEvery:3000,lastOil:5500};
+const BIKES=[
+ {id:1,name:"혼다 PCX125",y:2023,cc:125,km:8412,price:290,type:"개인",seller:"라이더김",area:"서울 마포구",low:270,high:320,h:212,reg:true,lien:false,acc:"무사고",svc:"정기점검 기록 3건",days:"1시간 전"},
+ {id:2,name:"야마하 NMAX125",y:2022,cc:125,km:15230,price:240,type:"센터",seller:"모토스테이션 강서",area:"서울 강서구",low:230,high:270,h:28,reg:true,lien:false,acc:"무사고",svc:"센터 자체 점검 완료",days:"3시간 전"},
+ {id:3,name:"혼다 CB500F",y:2021,cc:471,km:12805,price:590,type:"센터",seller:"라이드랩 대구",area:"대구 북구",low:560,high:640,h:355,reg:true,lien:false,acc:"경미 (좌측 미러 교체)",svc:"센터 자체 점검 완료",days:"어제"},
+ {id:4,name:"가와사키 Z650",y:2020,cc:649,km:21040,price:520,type:"개인",seller:"z라이프",area:"인천 서구",low:540,high:610,h:110,reg:true,lien:true,acc:"무사고 (판매자 진술)",svc:"기록 없음",days:"어제"},
+ {id:5,name:"혼다 슈퍼커브110",y:2024,cc:110,km:3108,price:230,type:"개인",seller:"출근용커브",area:"경기 수원시",low:215,high:250,h:45,reg:true,lien:false,acc:"무사고",svc:"정기점검 기록 1건",days:"2일 전"},
+ {id:6,name:"BMW G310R",y:2022,cc:313,km:9876,price:430,type:"센터",seller:"모토플렉스 분당",area:"경기 성남시",low:410,high:470,h:200,reg:true,lien:false,acc:"무사고",svc:"공식 서비스 기록 4건",days:"2일 전"},
+ {id:7,name:"야마하 XMAX300",y:2021,cc:292,km:26510,price:480,type:"개인",seller:"엑맥스장인",area:"광주 서구",low:470,high:530,h:260,reg:false,lien:false,acc:"확인 전",svc:"기록 없음",days:"3일 전"},
+ {id:8,name:"베스파 프리마베라125",y:2023,cc:125,km:4220,price:470,type:"센터",seller:"스쿠터웍스",area:"부산 해운대구",low:440,high:500,h:170,reg:true,lien:false,acc:"무사고",svc:"센터 자체 점검 완료",days:"4일 전"}
+];
+const STORES=[
+ {id:1,name:"기어팩토리",kind:"용품점",area:"서울 성동구",rate:4.8,h:30},
+ {id:2,name:"스쿠터튠",kind:"파츠",area:"경기 부천시",rate:4.7,h:200},
+ {id:3,name:"엑조스트랩",kind:"파츠",area:"대구 달서구",rate:4.9,h:10},
+ {id:4,name:"모토파츠도매",kind:"부품",area:"서울 구로구",rate:4.6,h:150},
+ {id:5,name:"라이드웨어",kind:"용품점",area:"부산 사상구",rate:4.5,h:280}
+];
+const CATS=[["all","전체"],["helmet","헬멧"],["wear","의류·장갑"],["acc","용품"],["tune","튜닝파츠"],["part","순정·부품"],["cons","소모품"]];
+const PRODS=[
+ {id:1,t:"AERO-X 풀페이스 헬멧 매트블랙 (KC 인증)",cat:"helmet",store:1,price:289000,fit:"공용",ic:"helmet",h:30,rate:4.8,rev:214},
+ {id:2,t:"PCX125 (21~) 롱 윈드스크린 스모크",cat:"tune",store:2,price:68000,fit:["PCX"],ic:"screen",h:200,rate:4.7,rev:88},
+ {id:3,t:"프론트 브레이크패드 세트 (PCX125·NMAX125)",cat:"part",store:4,price:24000,fit:["PCX","NMAX"],ic:"pad",h:150,rate:4.9,rev:331},
+ {id:4,t:"메쉬 라이딩 재킷 CE 레벨2 보호대 포함",cat:"wear",store:5,price:189000,fit:"공용",ic:"jacket",h:280,rate:4.5,rev:61},
+ {id:5,t:"CB500F (19~) 티타늄 슬립온 머플러",cat:"tune",store:3,price:640000,fit:["CB500F"],ic:"exhaust",h:10,rate:4.9,rev:24},
+ {id:6,t:"4T 스쿠터 엔진오일 10W-30 1L × 4",cat:"cons",store:4,price:48000,fit:"공용",ic:"oil",h:150,rate:4.8,rev:502},
+ {id:7,t:"뒷타이어 130/70-13 (PCX125·NMAX125)",cat:"cons",store:4,price:89000,fit:["PCX","NMAX"],ic:"tire",h:150,rate:4.6,rev:140},
+ {id:8,t:"너클 프로텍터 숏 라이딩 장갑",cat:"wear",store:1,price:49000,fit:"공용",ic:"glove",h:30,rate:4.7,rev:97},
+ {id:9,t:"진동 방지 스마트폰 거치대 퀵락",cat:"acc",store:1,price:39000,fit:"공용",ic:"mount",h:30,rate:4.6,rev:408},
+ {id:10,t:"전후방 2채널 블랙박스 방수형",cat:"acc",store:5,price:219000,fit:"공용",ic:"cam",h:280,rate:4.4,rev:52}
+];
+const SERVICES=[
+ {k:"oil",n:"엔진오일 교환",note:"오일+공임, 125cc 스쿠터 기준"},
+ {k:"chain",n:"체인 세척·주유",note:"공임"},
+ {k:"pad",n:"브레이크패드 (앞)",note:"호환 패드+공임"},
+ {k:"tire",n:"뒷타이어 교체",note:"공임만, 타이어 별도"},
+ {k:"bat",n:"배터리 교체",note:"12V 7Ah급+공임"}
+];
+const SHOPS=[
+ {id:1,name:"바이크닥터 정비",area:"서울 강서구",dist:1.2,rate:4.8,rev:312,open:true,tags:["공임 공개","스쿠터 전문"],p:{oil:22000,chain:10000,pad:38000,tire:15000,bat:65000}},
+ {id:2,name:"모토스테이션 강서",area:"서울 강서구",dist:2.4,rate:4.6,rev:188,open:true,tags:["공임 공개","매물 센터"],p:{oil:25000,chain:12000,pad:42000,tire:18000,bat:70000}},
+ {id:3,name:"투휠 메카닉",area:"서울 양천구",dist:3.1,rate:4.9,rev:97,open:false,tags:["공임 공개","대배기량"],p:{oil:28000,chain:15000,pad:45000,tire:20000,bat:72000}},
+ {id:4,name:"동네바이크",area:"서울 마포구",dist:4.0,rate:4.3,rev:241,open:true,tags:["배달 바이크","당일 수리"],p:{oil:18000,chain:8000,pad:35000,tire:12000,bat:58000}},
+ {id:5,name:"라이드핏 모토",area:"경기 부천시",dist:6.7,rate:4.7,rev:150,open:true,tags:["공임 공개","수입차"],p:{oil:30000,chain:15000,pad:52000,tire:22000,bat:78000}}
+];
+
+/* ============ helpers ============ */
+const $=s=>document.querySelector(s);
+const won=n=>n.toLocaleString("ko-KR");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const now=()=>new Date().toLocaleTimeString("ko-KR",{hour:"numeric",minute:"2-digit"});
+const sv=(p,w=22)=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const I={
+ home:sv('<path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z"/>'),
+ bike:sv('<circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16 9 10h5l4.5 6M9 10 8 7h3M14 10l2-3h2"/>'),
+ bag:sv('<path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/>'),
+ wrench:sv('<path d="M14.7 6.3a4 4 0 0 0 5 5L12 19a2.1 2.1 0 1 1-3-3l7.7-7.7a4 4 0 0 0-2-2z"/>'),
+ chat:sv('<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/>'),
+ plus:sv('<path d="M12 5v14M5 12h14"/>',20),
+ back:sv('<path d="M15 5l-7 7 7 7"/>'),
+ search:sv('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',18),
+ bell:sv('<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>',20),
+ user:sv('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',20),
+ cart:sv('<path d="M3 4h2l2.4 11h10.2L20 8H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',20),
+ shield:sv('<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>'),
+ won:sv('<path d="M4 7l3 10 5-9 5 9 3-10M3 11h18M3 14h18"/>'),
+ store:sv('<path d="M4 9 5.5 4h13L20 9M4 9v11h16V9M4 9h16M9 20v-6h6v6"/>'),
+ tag:sv('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
+ send:sv('<path d="M4 12 20 4l-6 16-3-7z"/>',20),
+ cam:sv('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',20),
+ bolt:sv('<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>',18),
+ x:sv('<path d="M6 6l12 12M18 6 6 18"/>',20),
+ grid:sv('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
+ helmet:sv('<path d="M3 15a9 9 0 0 1 18-1v3H8l-5-2z"/><path d="M12 9h7.5M8 17v3h8"/>'),
+ jacket:sv('<path d="M9 3 4 6v14h5l3-4 3 4h5V6l-5-3-3 3z"/><path d="M12 6v10"/>'),
+ glove:sv('<path d="M7 21v-8L5 9l2-1 2 3V4h2v6V3h2v7V4h2v7l1-3h2v6l-3 7z"/>'),
+ screen:sv('<path d="M6 21c0-8 3-15 12-18-2 6-2 12 0 18z"/>'),
+ pad:sv('<path d="M4 14a8 8 0 0 1 16 0v3H4z"/><path d="M8 14h8"/>'),
+ exhaust:sv('<path d="M3 15h4l2-4h9a3 3 0 0 1 0 6H9"/><circle cx="18" cy="14" r="1.5"/>'),
+ oil:sv('<path d="M7 7h8l3 4v10H6V9z"/><path d="M15 7V4h-4"/><path d="M12 13c-1.5 2-1.5 3 0 4 1.5-1 1.5-2 0-4z"/>'),
+ tire:sv('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>'),
+ mount:sv('<rect x="8" y="3" width="8" height="14" rx="2"/><path d="M12 17v4M8 21h8M5 8v4M19 8v4"/>'),
+ cambox:sv('<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 10l5-2v8l-5-2"/>')
+};
+const ICAT={helmet:I.helmet,jacket:I.jacket,glove:I.glove,screen:I.screen,pad:I.pad,exhaust:I.exhaust,oil:I.oil,tire:I.tire,mount:I.mount,cam:I.cambox};
+const CICON={all:I.grid,helmet:I.helmet,wear:I.jacket,acc:I.mount,tune:I.exhaust,part:I.pad,cons:I.oil};
+
+const BIKE_SVG=c=>`<svg class="bike" viewBox="0 0 160 96" aria-hidden="true">
+ <defs><linearGradient id="g${c}" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="hsl(${c} 85% 62%)"/><stop offset="1" stop-color="hsl(${c} 70% 34%)"/></linearGradient></defs>
+ <g fill="none" stroke="#0A0B0D" stroke-width="7"><circle cx="34" cy="68" r="20"/><circle cx="128" cy="68" r="20"/></g>
+ <g fill="none" stroke="#3A404B" stroke-width="2"><circle cx="34" cy="68" r="13"/><circle cx="128" cy="68" r="13"/></g>
+ <circle cx="34" cy="68" r="4" fill="#9AA3AF"/><circle cx="128" cy="68" r="4" fill="#9AA3AF"/>
+ <path d="M34 68 66 60" stroke="#2A2F38" stroke-width="5" stroke-linecap="round"/>
+ <path d="M128 68 112 30" stroke="#C9CED6" stroke-width="4" stroke-linecap="round"/>
+ <rect x="62" y="48" width="30" height="20" rx="4" fill="#2A2F38"/><rect x="66" y="52" width="10" height="12" rx="2" fill="#4A515D"/>
+ <path d="M70 66h22l8 6H76z" fill="#6B7380"/>
+ <path d="M44 44 58 40 70 28 98 26 112 30 118 40 104 44 92 48 60 50z" fill="url(#g${c})"/>
+ <path d="M70 28 98 26 104 34 74 36z" fill="rgba(255,255,255,.22)"/>
+ <path d="M40 42 62 38 64 44 44 47z" fill="#121418"/>
+ <path d="M106 22 116 18" stroke="#C9CED6" stroke-width="3" stroke-linecap="round"/>
+ <circle cx="118" cy="34" r="5" fill="#FFE7A8"/><circle cx="118" cy="34" r="8" fill="none" stroke="rgba(255,231,168,.35)" stroke-width="2"/>
+ <path d="M28 46 42 44" stroke="hsl(${c} 85% 62%)" stroke-width="3" stroke-linecap="round"/>
+</svg>`;
+const bv=(b,big)=>`<div class="bv" style="background:radial-gradient(90% 80% at 70% 20%,hsl(${b.h} 60% 22%),#101216 70%)"><span class="tl"><span class="chip ${b.type==="센터"?"center":"private"}">${b.type}</span></span>${BIKE_SVG(b.h)}<span class="num">${String(b.y).slice(2)}'</span></div>`;
+const pv=p=>`<div class="pv" style="background:radial-gradient(90% 90% at 30% 15%,hsl(${p.h} 45% 24%),#121418 72%)"><span class="tl">${fitChip(p)}</span><svg class="pi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${(ICAT[p.ic]||I.tag).replace(/^<svg[^>]*>|<\/svg>$/g,"")}</svg></div>`;
+const isFit=p=>p.fit==="공용"||p.fit.includes(MY_BIKE.name);
+const fitChip=p=>p.fit==="공용"?'':(isFit(p)?'<span class="chip safe">내 PCX 호환</span>':'<span class="chip private">'+p.fit.join("·")+' 전용</span>');
+const store=id=>STORES.find(s=>s.id===id);
+const odo=km=>'<span class="odo" aria-label="주행거리 '+won(km)+'km">'+[...String(km).padStart(6,"0")].map((d,i)=>'<i'+(i===5?' class="last"':'')+'>'+d+'</i>').join("")+'</span>';
+const badges=b=>{let h="";if(b.reg&&!b.lien)h+='<span class="chip safe">이력 확인</span>';if(b.lien)h+='<span class="chip warn">저당 있음</span>';if(!b.reg)h+='<span class="chip amber">서류 확인 전</span>';if(b.price<b.low)h+='<span class="chip amber">시세보다 낮음</span>';return h};
+
+/* ============ chat data ============ */
+const THREADS=[
+ {id:"b1",kind:"bike",ref:1,name:"라이더김",hue:212,unread:1,msgs:[
+  {f:"sys",t:"바이크필드 안심채팅 · 계좌번호·외부 메신저 유도는 자동으로 감지돼요"},
+  {f:"me",t:"안녕하세요 PCX 아직 판매중인가요?",tm:"오후 5:58"},
+  {f:"them",t:"네 판매중이에요! 출퇴근용으로만 타서 상태 좋아요.",tm:"오후 6:02"}]},
+ {id:"b4",kind:"bike",ref:4,name:"z라이프",hue:110,unread:2,msgs:[
+  {f:"sys",t:"바이크필드 안심채팅 · 계좌번호·외부 메신저 유도는 자동으로 감지돼요"},
+  {f:"me",t:"Z650 보고 연락드려요. 저당 있다고 떠서요",tm:"오후 4:10"},
+  {f:"them",t:"그거 금방 풀려요 신경 안쓰셔도 돼요",tm:"오후 4:12"},
+  {f:"them",t:"다른 분도 보러 온다 해서요. 선입금 50만 해주시면 찜 해드릴게요 국민 123456-01-778899",tm:"오후 4:13"},
+  {f:"alert",t:"상대방이 계좌번호를 보냈어요",d:"선입금·외부 계좌 송금은 바이크필드가 보호할 수 없어요. 이 매물은 저당이 남아 있어 안심결제도 막혀 있어요. 의심되면 신고해 주세요."}]},
+ {id:"p2",kind:"prod",ref:2,name:"스쿠터튠",hue:200,unread:0,msgs:[
+  {f:"sys",t:"입점 업체 · 파츠 · 사업자 인증 완료"},
+  {f:"me",t:"23년식 PCX에도 장착되나요?",tm:"어제"},
+  {f:"them",t:"네 21년식 이후 PCX125 전부 볼트온으로 장착됩니다.",tm:"어제"}]},
+ {id:"s1",kind:"shop",ref:1,name:"바이크닥터 정비",hue:30,unread:0,msgs:[
+  {f:"sys",t:"공임 공개 정비소 · 단가표와 다르게 청구되면 신고할 수 있어요"},
+  {f:"them",t:"예약 확인됐습니다. 토요일 오전 10시에 뵙겠습니다.",tm:"10/12"}]}
+];
+function threadTitle(th){
+ if(th.kind==="bike"){const b=BIKES.find(x=>x.id===th.ref);return b.name+" · "+won(b.price)+"만원"}
+ if(th.kind==="prod"){const p=PRODS.find(x=>x.id===th.ref);return p.t}
+ if(th.kind==="shop")return "정비 문의";
+ return "";
+}
+function getThread(kind,ref){
+ let th=THREADS.find(t=>t.kind===kind&&t.ref===ref);
+ if(th)return th;
+ if(kind==="bike"){const b=BIKES.find(x=>x.id===ref);th={id:"b"+ref,kind,ref,name:b.seller,hue:b.h,unread:0,msgs:[{f:"sys",t:"바이크필드 안심채팅 · 계좌번호·외부 메신저 유도는 자동으로 감지돼요"}]}}
+ if(kind==="prod"){const p=PRODS.find(x=>x.id===ref),s=store(p.store);th={id:"p"+ref,kind,ref,name:s.name,hue:s.h,unread:0,msgs:[{f:"sys",t:"입점 업체 · "+s.kind+" · 사업자 인증 완료"}]}}
+ if(kind==="shop"){const s=SHOPS.find(x=>x.id===ref);th={id:"s"+ref,kind,ref,name:s.name,hue:30+ref*40,unread:0,msgs:[{f:"sys",t:"공임 공개 정비소 · 단가표와 다르게 청구되면 신고할 수 있어요"}]}}
+ THREADS.unshift(th);return th;
+}
+const RISK=/(\d{2,6}[- ]?\d{2,6}[- ]\d{2,8})|계좌|선입금|입금|카톡|카카오톡|텔레그램|오픈채팅|라인 ?아이디/;
+function reply(th,txt){
+ const r=(re)=>re.test(txt);
+ if(th.kind==="bike"){
+  if(r(/안심결제/))return ["좋아요! 안심결제로 진행할게요. 요청 주시면 바로 수락할게요."];
+  if(r(/네고|깎|할인|에누리|에눌/))return ["직거래 기준으로 5만원까지는 맞춰드릴게요."];
+  if(r(/직거래|어디|위치|장소|보러/))return ["안심 직거래존 중에 편한 곳 골라주시면 거기로 갈게요.",{f:"zone",t:"근처 안심 직거래존",d:"경찰서·지구대 앞 지정 구역 / CCTV 있는 제휴 정비소 앞마당. 거래 시간이 기록되고 시운전도 가능해요."}];
+  if(r(/서류|차대|필증|사진/))return ["사용신고필증이랑 차대번호 사진은 매물에 올려놨어요. 추가로 필요한 각도 있으면 찍어드릴게요."];
+  if(r(/판매|아직|있나|팔렸/))return ["네 아직 판매중이에요! 주말에 보러 오셔도 돼요."];
+  if(r(/사고|넘어|슬립|기스|흠집/))return ["슬립 이력은 없고 오른쪽 사이드커버에 잔기스 조금 있어요. 사진 보내드릴게요."];
+  return ["확인했어요! 궁금한 거 더 물어보세요."];
+ }
+ if(th.kind==="prod"){
+  if(r(/재고|있나|있어요/))return ["재고 있습니다. 오후 3시 전 주문하면 당일 출고돼요."];
+  if(r(/호환|맞|장착되/))return ["모델명이랑 연식 알려주시면 정확히 확인해 드릴게요. PCX125는 21년식 이후 그대로 장착돼요."];
+  if(r(/장착|설치|공임/))return ["바이크필드 제휴 정비소로 바로 배송하면 장착 예약까지 같이 잡아드려요."];
+  if(r(/배송|언제|도착/))return ["보통 1~2일 걸려요. 제주·도서는 하루 더 걸립니다."];
+  return ["네 문의 감사합니다. 확인하고 바로 답드릴게요."];
+ }
+ if(r(/예약|언제|시간|내일|오늘/))return ["내일 오전 10시, 오후 2시 자리 비어 있어요. 어느 쪽이 편하세요?"];
+ if(r(/가격|얼마|견적|비용/))return ["단가표 금액 그대로 받아요. 부품 추가가 필요하면 작업 전에 사진이랑 금액 먼저 보내드려요."];
+ return ["네 확인했습니다. 차종이랑 증상 알려주시면 더 정확히 안내드릴게요."];
+}
+const QUICK={bike:["아직 판매중인가요?","직거래 가능한가요?","네고 가능할까요?","서류 사진 더 볼 수 있나요?"],prod:["재고 있나요?","제 PCX에 호환되나요?","장착도 가능한가요?","배송 얼마나 걸려요?"],shop:["내일 예약 가능한가요?","엔진오일 교환 얼마예요?"]};
+
+/* ============ state ============ */
+const S={tab:"home",stack:[],type:"전체",ccf:"전체",q:"",svc:"oil",regType:"개인",lookup:false,pay:0,cat:"all",skind:"전체",fitOnly:false,cart:0,typing:null,mshop:"list"};
+let toastT;
+function toast(msg){clearTimeout(toastT);const o=$("#overlay");o.querySelector(".toast")?.remove();const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=msg;o.appendChild(t);toastT=setTimeout(()=>t.remove(),2800)}
+function go(tab){S.tab=tab;S.stack=[];$("#overlay").innerHTML="";render();$("#screen").scrollTop=0}
+function push(v){S.stack.push(v);render();$("#screen").scrollTop=0}
+function pop(){S.stack.pop();render()}
+const unreadTotal=()=>THREADS.reduce((a,t)=>a+t.unread,0);
+const backBtn='<button class="ib" data-back aria-label="뒤로">'+I.back+'</button>';
+
+/* ============ screens ============ */
+function home(){
+ const left=MY_BIKE.oilEvery-(MY_BIKE.km-MY_BIKE.lastOil),frac=Math.max(0,Math.min(1,left/MY_BIKE.oilEvery));
+ const R=46,C=Math.PI*R*1.5,dash=(C*frac).toFixed(1);
+ const feat=BIKES.filter(b=>b.reg&&!b.lien).slice(0,5).map(b=>`<button class="feat" data-bike="${b.id}">${bv(b)}<span class="in"><span class="t">${b.name}</span><span class="s">${b.y}년식 · ${won(b.km)}km · ${b.area}</span><span class="row2"><span class="price">${won(b.price)}<small>만원</small></span><span class="badges" style="margin:0">${badges(b)}</span></span></span></button>`).join("");
+ const picks=PRODS.filter(isFit).slice(0,5).map(p=>`<button class="prod mini" data-prod="${p.id}">${pv(p)}<span class="st">${store(p.store).name}</span><span class="t">${p.t}</span><span class="price">${won(p.price)}<small>원</small></span></button>`).join("");
+ return {bar:`<div class="brand"><span class="mark">${I.bolt}</span><span class="wm">BIKE<span>FIELD</span></span></div><button class="ib" data-toast="새 알림: 찜한 PCX125 가격이 10만원 내려갔어요 (예시)" aria-label="알림">${I.bell}<span class="dot">1</span></button><button class="ib" data-push="my" aria-label="MY">${I.user}</button>`,
+ body:`<div class="sec">
+  <div class="garage">
+   <div style="position:relative;z-index:1;min-width:0"><div class="lbl">MY GARAGE</div><div class="nm">${MY_BIKE.name}</div><div class="meta">${MY_BIKE.y}년식 · 누적 ${won(MY_BIKE.km)}km</div>
+    <div class="acts"><button class="pill hot" data-fitgo>호환 파츠</button><button class="pill" data-go="shop">정비 예약</button></div></div>
+   <div class="tach" aria-label="엔진오일 교환까지 ${left}km">
+    <svg viewBox="0 0 120 110"><defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#FFB000"/><stop offset="1" stop-color="#FF6A00"/></linearGradient></defs>
+     <circle cx="60" cy="60" r="${R}" fill="none" stroke="#2A2F38" stroke-width="9" stroke-dasharray="${C.toFixed(1)} 999" transform="rotate(135 60 60)" stroke-linecap="round"/>
+     <circle cx="60" cy="60" r="${R}" fill="none" stroke="url(#tg)" stroke-width="9" stroke-dasharray="${dash} 999" transform="rotate(135 60 60)" stroke-linecap="round"/>
+     ${[0,.25,.5,.75,1].map(f=>{const a=(135+270*f)*Math.PI/180;return `<line x1="${(60+34*Math.cos(a)).toFixed(1)}" y1="${(60+34*Math.sin(a)).toFixed(1)}" x2="${(60+29*Math.cos(a)).toFixed(1)}" y2="${(60+29*Math.sin(a)).toFixed(1)}" stroke="#5D6572" stroke-width="2"/>`}).join("")}
+    </svg>
+    <div class="v"><b>${won(left)}</b><span>km 후 오일 교환</span></div>
+   </div>
+  </div>
+  <form class="search" id="homeSearch" role="search">${I.search}<input id="q" placeholder="모델명, 파츠, 정비소 검색" autocomplete="off"></form>
+  <div class="quick">
+   <button data-go="list"><span class="qi">${I.bike}</span>중고매물</button>
+   <button data-center><span class="qi">${I.store}</span>센터매물</button>
+   <button data-catgo="helmet"><span class="qi">${I.helmet}</span>용품</button>
+   <button data-catgo="tune"><span class="qi">${I.exhaust}</span>파츠·부품</button>
+   <button data-go="shop"><span class="qi">${I.wrench}</span>정비소</button>
+   <button data-price><span class="qi">${I.won}</span>단가비교</button>
+   <button data-push="reg"><span class="qi hot">${I.plus}</span>내 바이크 팔기</button>
+   <button data-guide><span class="qi">${I.shield}</span>안심거래</button>
+  </div>
+ </div>
+ <div class="sec"><div class="sec-h"><h2>검증 완료 매물 <i>VERIFIED</i></h2><button class="link" data-go="list">전체보기</button></div><div class="hs">${feat}</div></div>
+ <div class="sec"><div class="sec-h"><h2>내 PCX에 맞는 파츠 <i>FIT</i></h2><button class="link" data-fitgo>전체보기</button></div><div class="hs">${picks}</div></div>
+ <div class="sec" style="padding-bottom:24px"><div class="biz"><span class="chip steel" style="align-self:flex-start">사장님 전용</span><b>용품점 · 파츠 · 부품업체 · 정비소 입점</b><p>바이크필드에서 라이더에게 직접 팔고, 채팅으로 상담하고, 장착 예약까지 받으세요.</p><button class="pill hot" data-push="join">입점 신청</button></div></div>`};
+}
+function listScreen(){
+ const arr=BIKES.filter(b=>(S.type==="전체"||b.type===S.type)&&(S.ccf==="전체"||(S.ccf==="125cc 이하"&&b.cc<=125)||(S.ccf==="126~300cc"&&b.cc>125&&b.cc<=300)||(S.ccf==="300cc 초과"&&b.cc>300))&&(!S.q||b.name.toLowerCase().includes(S.q.toLowerCase())));
+ const chips=(a,k)=>a.map(v=>'<button data-f="'+k+'" data-v="'+v+'" aria-pressed="'+(S[k]===v)+'">'+v+'</button>').join("");
+ const rows=arr.length?arr.map(b=>`<button class="row" data-bike="${b.id}">${bv(b)}<span class="meta"><span class="t">${b.name}</span><span class="s">${b.y}년식 · ${won(b.km)}km</span><span class="s">${b.area} · ${b.days}</span><span class="price" style="margin-top:2px">${won(b.price)}<small>만원</small></span><span class="badges">${badges(b)}</span></span></button>`).join(""):'<div class="empty">조건에 맞는 매물이 없어요. 필터를 바꿔 보세요.</div>';
+ return {bar:'<h1>중고매물<span class="sub">개인 · 센터 매물</span></h1><button class="ib" data-guide aria-label="안심거래 안내">'+I.shield+'</button>',
+ fab:'<button class="fab" data-push="reg">'+I.plus+'내 바이크 팔기</button>',
+ body:`<div class="sec">
+  ${S.q?'<div class="filters"><button data-clearq aria-pressed="true">“'+esc(S.q)+'” 검색 ✕</button></div>':''}
+  <div class="filters">${chips(["전체","개인","센터"],"type")}<span style="width:1px;background:var(--line);flex:none;margin:4px 2px"></span>${chips(["전체","125cc 이하","126~300cc","300cc 초과"],"ccf")}</div>
+  <div class="hint">${arr.length}대 · 최신순</div>
+  <div class="stack" style="padding-bottom:70px">${rows}</div></div>`};
+}
+function bikeDetail(id){
+ const b=BIKES.find(x=>x.id===id);
+ const min=Math.round(b.low*0.85),max=Math.round(b.high*1.12),pct=v=>Math.max(0,Math.min(100,(v-min)/(max-min)*100));
+ const verdict=b.price<b.low?'<span class="chip amber">시세보다 '+won(b.low-b.price)+'만원 낮음</span>':b.price>b.high?'<span class="chip warn">시세보다 높음</span>':'<span class="chip safe">시세 구간 안</span>';
+ const ck=(ok,t,d,r)=>'<li class="'+(ok?"ok":"bad")+'"><span class="ic">'+(ok?"✓":"!")+'</span><span><b>'+t+'</b><span class="d">'+d+'</span></span><span class="chip '+(ok?"safe":"warn")+'">'+r+'</span></li>';
+ const accOk=b.acc.startsWith("무사고")&&!b.acc.includes("진술");
+ return {bar:backBtn+'<h1>'+b.name+'</h1><button class="ib" data-toast="찜 목록에 담았어요" aria-label="찜">'+sv('<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',20)+'</button>',
+ cta:'<div class="cta"><button class="btn" data-chatbike="'+b.id+'">'+I.chat+'채팅</button><button class="btn primary" data-pay="'+b.id+'"'+(b.lien?' disabled':'')+'>'+(b.lien?'저당 해소 후 결제 가능':'안심결제로 구매')+'</button></div>',
+ body:`<div class="sec">
+  ${bv(b)}
+  <div><div class="hint">${b.type==="센터"?"센터 매물":"개인 매물"} · ${b.seller} · ${b.days}</div><div style="font-family:var(--f-display);font-size:24px;line-height:1.2;margin-top:4px">${b.y} ${b.name}</div>
+  <div class="price" style="font-size:32px;margin-top:4px">${won(b.price)}<small>만원</small></div></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:13px">주행거리</b>${odo(b.km)}</div>
+   <dl class="kv"><div><dt>연식</dt><dd>${b.y}년</dd></div><div><dt>배기량</dt><dd>${b.cc}cc</dd></div><div><dt>지역</dt><dd>${b.area}</dd></div><div><dt>정비 기록</dt><dd>${b.svc}</dd></div></dl></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>바이크필드 안전 체크</b><span class="hint">등록 시 조회</span></div>
+   <ul class="check">
+    ${ck(b.reg,"사용신고필증 대조","서류의 차대번호와 실제 차량 사진 일치 여부",b.reg?"일치":"확인 전")}
+    ${ck(!b.lien,"압류·저당","걸려 있으면 명의이전이 막히거나 차량을 잃을 수 있어요",b.lien?"저당 1건":"없음")}
+    ${ck(accOk||b.acc.startsWith("경미"),"사고 이력",b.acc,accOk?"무사고":b.acc.startsWith("경미")?"경미":"미확인")}
+   </ul>
+   ${b.lien?'<p class="hint" style="color:var(--warn)">판매자가 저당을 해소하고 말소 서류를 올리면 안심결제가 열려요.</p>':''}</div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b>시세 비교</b>${verdict}</div>
+   <div class="range" aria-label="시세 구간 ${b.low}~${b.high}만원, 이 매물 ${b.price}만원"><div class="bar"></div><div class="band" style="left:${pct(b.low)}%;width:${pct(b.high)-pct(b.low)}%"></div><div class="pin" style="left:${pct(b.price)}%"></div></div>
+   <div class="rl"><span>${b.low}만</span><span>같은 모델·연식 거래 구간</span><span>${b.high}만</span></div></div>
+  <button class="btn" data-go="shop">${I.wrench}구매 전 점검 받을 정비소 찾기</button>
+ </div>`};
+}
+function marketScreen(){
+ let arr=PRODS.filter(p=>(S.cat==="all"||p.cat===S.cat)&&(S.skind==="전체"||store(p.store).kind===S.skind)&&(!S.fitOnly||isFit(p)));
+ const grid=arr.length?arr.map(p=>`<button class="prod" data-prod="${p.id}">${pv(p)}<span class="st">${store(p.store).name} · ${store(p.store).kind}</span><span class="t">${p.t}</span><span class="price">${won(p.price)}<small>원</small></span><span class="hint">★ ${p.rate} (${p.rev})</span></button>`).join(""):'<div class="empty" style="grid-column:1/-1">조건에 맞는 상품이 없어요.</div>';
+ return {bar:'<h1>마켓<span class="sub">용품 · 파츠 · 부품 입점 업체</span></h1><button class="ib" data-push="stores" aria-label="입점 업체">'+I.store+'</button><button class="ib" data-toast="장바구니 '+S.cart+'개 (데모)" aria-label="장바구니">'+I.cart+(S.cart?'<span class="dot">'+S.cart+'</span>':'')+'</button>',
+ body:`<div class="sec">
+  <button class="mytoggle" data-fit aria-pressed="${S.fitOnly}"><span style="color:var(--amber)">${I.bike}</span><span><b>내 바이크 호환만</b><span class="d">${MY_BIKE.full} ${MY_BIKE.y}년식 기준</span></span><span class="sw"></span></button>
+  <div class="cats">${CATS.map(([k,n])=>`<button data-cat="${k}" aria-pressed="${S.cat===k}"><span class="ci">${CICON[k]}</span>${n}</button>`).join("")}</div>
+  <div class="filters">${["전체","용품점","파츠","부품"].map(v=>'<button data-skind="'+v+'" aria-pressed="'+(S.skind===v)+'">'+(v==="전체"?"모든 업체":v)+'</button>').join("")}</div>
+  <div class="grid">${grid}</div>
+  <div class="biz" style="margin-top:6px"><b>업체 사장님이세요?</b><p>상품 등록, 채팅 상담, 정비소 장착 연계까지.</p><button class="pill hot" data-push="join">입점 신청</button></div>
+ </div>`};
+}
+function prodDetail(id){
+ const p=PRODS.find(x=>x.id===id),s=store(p.store);
+ return {bar:backBtn+'<h1>'+s.name+'</h1><button class="ib" data-toast="장바구니 '+S.cart+'개 (데모)" aria-label="장바구니">'+I.cart+(S.cart?'<span class="dot">'+S.cart+'</span>':'')+'</button>',
+ cta:'<div class="cta"><button class="btn" data-chatprod="'+p.id+'">'+I.chat+'문의</button><button class="btn primary" data-addcart>장바구니 담기</button></div>',
+ body:`<div class="sec">
+  ${pv(p)}
+  <div><div class="hint">${s.kind} · ★ ${p.rate} 리뷰 ${p.rev}</div><div style="font-size:18px;font-weight:900;line-height:1.35;margin-top:4px">${p.t}</div><div class="price" style="font-size:30px;margin-top:6px">${won(p.price)}<small>원</small></div></div>
+  <div class="card"><b>호환 차종</b>${p.fit==="공용"?'<span class="hint">모든 차종 공용 상품이에요.</span>':'<div class="badges" style="margin:0">'+p.fit.map(f=>'<span class="chip '+(f===MY_BIKE.name?"safe":"private")+'">'+f+'</span>').join("")+'</div>'+(isFit(p)?'<span class="hint" style="color:var(--safe)">내 차고의 '+MY_BIKE.full+'에 맞아요.</span>':'<span class="hint" style="color:var(--warn)">내 차고의 '+MY_BIKE.full+'에는 맞지 않아요.</span>')}</div>
+  ${p.cat==="tune"||p.cat==="part"||p.cat==="cons"?'<div class="card"><b>장착까지 한 번에</b><span class="hint">주문할 때 제휴 정비소를 고르면 상품이 정비소로 바로 배송되고, 도착하면 장착 예약 알림이 와요.</span><button class="btn" data-go="shop">'+I.wrench+'장착 정비소 고르기</button></div>':''}
+  <button class="shoprow" data-push="stores"><span class="av">${s.name[0]}</span><span class="t">${s.name}</span><span class="r">★ ${s.rate}</span><span class="s">${s.area} · 사업자 인증 · ${s.kind}</span></button>
+ </div>`};
+}
+function storesScreen(){
+ return {bar:backBtn+'<h1>입점 업체</h1>',body:`<div class="sec"><div class="stack">${STORES.map(s=>`<div class="shoprow"><span class="av">${s.name[0]}</span><span class="t">${s.name}</span><span class="r">★ ${s.rate}</span><span class="s">${s.area}</span><span class="badges"><span class="chip steel">${s.kind}</span><span class="chip safe">사업자 인증</span><span class="chip private">상품 ${PRODS.filter(p=>p.store===s.id).length}개</span></span></div>`).join("")}</div>
+ <button class="btn primary" data-push="join">우리 업체도 입점하기</button></div>`};
+}
+function joinScreen(){
+ return {bar:backBtn+'<h1>입점 신청</h1>',body:`<form class="sec reg" id="joinForm">
+  <div class="field"><span class="lab">업체 유형</span><div class="seg" style="grid-template-columns:repeat(3,1fr);grid-auto-flow:row">${["용품점","파츠·튜닝","순정부품·도매","정비소","중고 센터","기타"].map((k,i)=>'<button type="button" data-jk="'+k+'" aria-pressed="'+((S.jk||"파츠·튜닝")===k)+'">'+k+'</button>').join("")}</div></div>
+  <div class="field"><label for="jn">상호</label><input id="jn" value="스피드파츠"></div>
+  <div class="grid2"><div class="field"><label for="jb">사업자등록번호</label><input id="jb" inputmode="numeric" value="123-45-67890"></div><div class="field"><label for="jr">지역</label><input id="jr" value="경기 고양시"></div></div>
+  <div class="field"><label for="jc">주력 차종 / 브랜드</label><input id="jc" value="혼다·야마하 125cc 스쿠터"></div>
+  <div class="ph">${I.cam}<b>사업자등록증 사진</b><span class="hint">통신판매업 신고증도 있으면 함께 올려주세요</span></div>
+  <button class="btn primary" type="submit">입점 신청하기</button>
+  <p class="hint">심사 후 상점이 열리고, 상품 등록·채팅 상담·장착 예약 연계를 쓸 수 있어요.</p></form>`};
+}
+function shopRow(s){return `<button class="shoprow" data-shop="${s.id}"><span class="av">${s.name[0]}</span><span class="t">${s.name}</span><span class="r">★ ${s.rate}</span><span class="s">${s.area} · ${s.dist}km · ${s.open?'<span style="color:var(--safe)">영업 중</span>':"영업 종료"} · 리뷰 ${s.rev}</span><span class="badges">${s.tags.map(t=>'<span class="chip '+(t==="공임 공개"?"safe":"private")+'">'+t+'</span>').join("")}</span></button>`}
+const avg=k=>SHOPS.reduce((a,s)=>a+s.p[k],0)/SHOPS.length;
+function shopScreen(){
+ const seg='<div class="seg"><button data-mshop="list" aria-pressed="'+(S.mshop==="list")+'">정비소</button><button data-mshop="price" aria-pressed="'+(S.mshop==="price")+'">단가 비교</button></div>';
+ if(S.mshop==="price")return priceScreen(seg);
+ return {bar:'<h1>정비<span class="sub">공임 공개 정비소 · 가까운 순</span></h1>',body:`<div class="sec">${seg}<div class="stack">${SHOPS.map(shopRow).join("")}</div>
+  <p class="hint">“공임 공개” 배지는 정비소가 단가표를 앱에 공개했고, 실제 청구가 다르면 신고할 수 있다는 뜻이에요.</p></div>`};
+}
+function priceScreen(seg){
+ const v=SERVICES.find(x=>x.k===S.svc),a=avg(S.svc),sorted=[...SHOPS].sort((x,y)=>x.p[S.svc]-y.p[S.svc]),mx=Math.max(...SHOPS.map(s=>s.p[S.svc]))*1.08;
+ return {bar:'<h1>정비<span class="sub">항목별 단가 비교</span></h1>',body:`<div class="sec">${seg}
+  <div class="filters">${SERVICES.map(x=>'<button data-svc="'+x.k+'" aria-pressed="'+(S.svc===x.k)+'">'+x.n+'</button>').join("")}</div>
+  <div class="card"><div><b>${v.n}</b><div class="hint">${v.note}</div></div>
+   <div class="big"><div><span>평균</span><b class="price">${won(Math.round(a/100)*100)}<small>원</small></b></div><div><span>최저</span><b class="price lo">${won(sorted[0].p[S.svc])}<small>원</small></b></div><div><span>최고</span><b class="price hi">${won(sorted[sorted.length-1].p[S.svc])}<small>원</small></b></div></div>
+   <div class="bars">${sorted.map((s,i)=>`<div class="b${i===0?" best":""}"><span class="nm">${s.name}</span><span class="track"><span class="fill" style="width:${(s.p[S.svc]/mx*100).toFixed(1)}%"></span><span class="avg" style="left:${(a/mx*100).toFixed(1)}%"></span></span><span class="v">${won(s.p[S.svc])}</span></div>`).join("")}</div>
+   <p class="hint"><span style="color:var(--amber);font-weight:900">┆</span> 점선 = 평균 · 단위 원 · 예시 데이터</p></div></div>`};
+}
+function shopDetail(id){
+ const s=SHOPS.find(x=>x.id===id);
+ const rows=SERVICES.map(v=>{const a=avg(v.k),d=Math.round((s.p[v.k]-a)/a*100);return `<tr><td>${v.n}<span class="note">${v.note}</span></td><td class="n">${won(s.p[v.k])}원<span class="diff ${d<=0?"lo":"hi"}">평균 대비 ${d>0?"+":""}${d}%</span></td></tr>`}).join("");
+ return {bar:backBtn+'<h1>'+s.name+'</h1>',
+ cta:'<div class="cta"><button class="btn" data-chatshop="'+s.id+'">'+I.chat+'문의</button><button class="btn primary" data-toast="예약 요청을 보냈어요 (데모)">정비 예약</button></div>',
+ body:`<div class="sec">
+  <div class="card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b style="font-size:19px;font-family:var(--f-display);font-weight:400">${s.name}</b><span class="price" style="color:var(--amber);font-size:18px">★ ${s.rate}</span></div>
+   <span class="hint">${s.area} · ${s.dist}km · 리뷰 ${s.rev}개 · ${s.open?"지금 영업 중":"오늘 영업 종료"}</span>
+   <div class="badges" style="margin:0">${s.tags.map(t=>'<span class="chip '+(t==="공임 공개"?"safe":"private")+'">'+t+'</span>').join("")}</div></div>
+  <div class="card"><b>단가표</b><table class="rate"><thead><tr><th>항목</th><th style="text-align:right">가격</th></tr></thead><tbody>${rows}</tbody></table>
+  <p class="hint">평균은 바이크필드 등록 정비소 기준 (예시 데이터)</p></div></div>`};
+}
+function regScreen(){
+ return {bar:backBtn+'<h1>내 바이크 팔기</h1>',body:`<form class="sec reg" id="regForm">
+  <div class="field"><span class="lab">판매자 구분</span><div class="seg"><button type="button" data-rt="개인" aria-pressed="${S.regType==="개인"}">개인</button><button type="button" data-rt="센터" aria-pressed="${S.regType==="센터"}">센터 (사업자)</button></div></div>
+  <div class="field"><label for="plate">번호판</label><div class="plate"><input id="plate" value="서울 강서 가 1234"><button type="button" data-lookup>이력 조회</button></div>
+   ${S.lookup?'<div class="badges"><span class="chip safe">사용신고 확인</span><span class="chip safe">압류·저당 없음</span><span class="chip amber">사고이력: 판매자 입력 필요</span></div>':'<p class="hint">조회 결과는 매물에 배지로 표시되고, 판매자가 숨길 수 없어요.</p>'}</div>
+  <div class="grid2"><div class="field"><label for="model">모델</label><input id="model" value="혼다 PCX125"></div><div class="field"><label for="year">연식</label><select id="year"><option>2024</option><option selected>2023</option><option>2022</option><option>2021</option></select></div></div>
+  <div class="grid2"><div class="field"><label for="km">주행거리 (km)</label><input id="km" inputmode="numeric" value="8412"></div><div class="field"><label for="price">희망가 (만원)</label><input id="price" inputmode="numeric" value="290"></div></div>
+  <p class="hint" style="margin-top:-6px">같은 모델·연식 시세 <b style="color:var(--amber)">270~320만원</b></p>
+  <div class="grid2"><div class="ph">${I.cam}<b>사용신고필증</b><span class="hint">차대번호 보이게</span></div><div class="ph">${I.cam}<b>실제 차대번호</b><span class="hint">프레임 각인</span></div></div>
+  <button class="btn primary" type="submit">검수 요청하고 등록</button>
+  <p class="hint">운영팀이 서류와 차대번호를 대조한 뒤 매물이 공개돼요.</p></form>`};
+}
+function myScreen(){
+ return {bar:backBtn+'<h1>MY</h1>',body:`<div class="sec">
+  <div class="card" style="flex-direction:row;align-items:center;gap:12px"><span class="av" style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--amber),var(--heat));display:grid;place-items:center;color:var(--amber-ink);font-family:var(--f-display);font-size:22px">R</span><span><b style="font-size:16px;display:block">라이더님</b><span class="hint">본인인증 완료 · 안심거래 0건</span></span></div>
+  <div class="stack">${[["내 차고 관리",I.bike],["안심결제 내역",I.shield],["찜한 매물",I.tag],["주문 · 배송",I.bag],["정비 예약 내역",I.wrench],["신고 · 고객센터",I.chat]].map(([t,ic])=>'<button class="shoprow" data-toast="다음 단계에서 만들 화면이에요" style="grid-template-columns:24px minmax(0,1fr) auto"><span style="color:var(--muted)">'+ic+'</span><span class="t" style="font-weight:500">'+t+'</span><span class="r" style="color:var(--dim)">›</span></button>').join("")}</div></div>`};
+}
+
+/* ---------- chat ---------- */
+function chatList(){
+ return {bar:'<h1>채팅<span class="sub">안심채팅 · 사기 패턴 자동 감지</span></h1>',body:`<div class="sec" style="gap:0">${THREADS.map(th=>{const last=[...th.msgs].reverse().find(m=>m.f!=="sys")||th.msgs[0];const kindChip=th.kind==="bike"?'':th.kind==="prod"?'<span class="chip steel">업체</span>':'<span class="chip safe">정비소</span>';
+  return `<button class="thread" data-thread="${th.id}"><span class="av" style="background:linear-gradient(135deg,hsl(${th.hue} 80% 60%),hsl(${th.hue} 70% 40%))">${th.name[0]}</span><span class="t"><span>${th.name}</span>${kindChip}</span><span class="tm">${last.tm||""}</span><span class="p">${last.f==="alert"?'<span style="color:var(--warn)">⚠ '+last.t+'</span>':esc(last.t)}</span>${th.unread?'<span class="un">'+th.unread+'</span>':'<span></span>'}</button>`}).join("")}</div>`};
+}
+function chatRoom(id){
+ const th=THREADS.find(t=>t.id===id);th.unread=0;
+ let pin="";
+ if(th.kind==="bike"){const b=BIKES.find(x=>x.id===th.ref);pin=`<div class="pinned">${bv(b)}<span class="meta"><span class="t">${b.name}</span><span class="price" style="font-size:16px">${won(b.price)}<small>만원</small></span></span>${b.lien?'<span class="chip warn" style="margin-left:auto">결제 잠김</span>':'<button data-pay="'+b.id+'">안심결제</button>'}</div>`}
+ if(th.kind==="prod"){const p=PRODS.find(x=>x.id===th.ref);pin=`<div class="pinned">${pv(p)}<span class="meta"><span class="t" style="font-weight:700;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.t}</span><span class="price" style="font-size:16px">${won(p.price)}<small>원</small></span></span><button data-addcart>담기</button></div>`}
+ const msgs=th.msgs.map(m=>{
+  if(m.f==="sys")return '<div class="sys">'+esc(m.t)+'</div>';
+  if(m.f==="alert")return '<div class="alert" role="alert"><span class="ic">!</span><span><b>'+esc(m.t)+'</b>'+esc(m.d)+'</span></div>';
+  if(m.f==="zone")return '<div class="zone"><b>'+esc(m.t)+'</b><span>'+esc(m.d)+'</span></div>';
+  return '<div class="m '+m.f+'">'+esc(m.t)+'</div>'+(m.tm?'<div class="mt '+m.f+'">'+m.tm+'</div>':'');
+ }).join("")+(S.typing===th.id?'<div class="typing" aria-label="상대방 입력 중"><i></i><i></i><i></i></div>':'');
+ const q=QUICK[th.kind]||[];
+ return {bar:backBtn+'<h1>'+esc(th.name)+'<span class="sub">'+esc(threadTitle(th))+'</span></h1><button class="ib" data-toast="신고가 접수됐어요. 운영팀이 대화 내용을 확인해요 (데모)" aria-label="신고">'+sv('<path d="M5 21V4h11l-2 4 2 4H5"/>',20)+'</button>',
+ pin,body:'<div class="msgs" id="msgs">'+msgs+'</div>',noTabs:true,
+ cta:`<form class="composer" id="chatForm" data-th="${th.id}"><div class="qr">${th.kind==="bike"&&!BIKES.find(x=>x.id===th.ref).lien?'<button type="button" class="safe" data-q="안심결제로 거래하고 싶어요">안심결제 요청</button>':''}${q.map(t=>'<button type="button" data-q="'+t+'">'+t+'</button>').join("")}</div>
+  <div class="cin"><button type="button" class="plus" data-toast="사진 보내기 (데모)" aria-label="사진">${I.cam}</button><input id="msg" placeholder="메시지 보내기" autocomplete="off" aria-label="메시지"><button class="send" type="submit" aria-label="보내기">${I.send}</button></div></form>`};
+}
+function sendMsg(thId,text){
+ const th=THREADS.find(t=>t.id===thId);text=text.trim();if(!text)return;
+ th.msgs.push({f:"me",t:text,tm:now()});
+ if(RISK.test(text))th.msgs.push({f:"alert",t:"계좌번호·외부 메신저가 감지됐어요",d:"바이크필드 밖에서 송금하거나 대화하면 사기 피해를 보호받을 수 없어요. 안심결제를 이용해 주세요."});
+ if(/안심결제/.test(text))th.msgs.push({f:"sys",t:"안심결제 요청을 보냈어요"});
+ S.typing=th.id;render();
+ const replies=reply(th,text);
+ setTimeout(()=>{
+  S.typing=null;
+  replies.forEach(r=>th.msgs.push(typeof r==="string"?{f:"them",t:r,tm:now()}:r));
+  const top=S.stack[S.stack.length-1];
+  if(top&&top.chat===th.id)render();else{th.unread+=replies.length;render()}
+ },1100+Math.random()*700);
+}
+function openChat(kind,ref){const th=getThread(kind,ref);S.tab="chat";S.stack=[{chat:th.id}];render()}
+
+/* ---------- sheet ---------- */
+const STEPS=[["본인인증","구매자·판매자 모두 휴대폰 실명 인증"],["서류 대조","사용신고필증 차대번호 = 실차 차대번호"],["대금 예치","바이크필드가 결제 금액을 보관 (판매자에게 바로 안 감)"],["인수·시운전","차량을 받고 48시간 안에 이상 없음 확인"],["명의이전 · 정산","이전 신고 완료 확인 후 판매자에게 정산"]];
+function openSheet(bikeId){
+ const b=bikeId?BIKES.find(x=>x.id===bikeId):null;S.pay=b?2:0;
+ const draw=()=>{$("#overlay").innerHTML=`<div class="sheet" data-close><div class="panel" role="dialog" aria-modal="true" aria-label="안심결제"><span class="grab"></span>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3>${b?"안심결제 · "+b.name:"안심거래 5단계"}</h3><button class="ib" data-x aria-label="닫기">${I.x}</button></div>
+  ${b?'<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="hint">결제 금액 (수수료 별도)</span><span class="price">'+won(b.price*10000)+'<small>원</small></span></div>':'<p class="hint">차량을 받고 확인한 뒤에 판매자에게 돈이 넘어가요.</p>'}
+  <ol class="steps">${STEPS.map((s,i)=>'<li class="'+(i<S.pay?"done":i===S.pay?"now":"later")+'"><span class="no">'+(i<S.pay?"✓":i+1)+'</span><span><b>'+s[0]+'</b><span>'+s[1]+'</span></span></li>').join("")}</ol>
+  ${b?'<button class="btn primary" data-next>'+(S.pay<4?STEPS[S.pay][0]+" 진행하기 (데모)":"거래 완료")+'</button>':'<button class="btn primary" data-x>확인</button>'}</div></div>`};
+ draw();openSheet.draw=draw;
+}
+
+/* ============ render ============ */
+const TABS=[["home","홈","home"],["list","중고","bike"],["market","마켓","bag"],["shop","정비","wrench"],["chat","채팅","chat"]];
+function render(){
+ const top=S.stack[S.stack.length-1];let v;
+ if(top){
+  if(top.bike)v=bikeDetail(top.bike);else if(top.shop)v=shopDetail(top.shop);else if(top.prod)v=prodDetail(top.prod);
+  else if(top.chat)v=chatRoom(top.chat);else v={reg:regScreen,my:myScreen,stores:storesScreen,join:joinScreen}[top.view]();
+ } else v={home,list:listScreen,market:marketScreen,shop:shopScreen,chat:chatList}[S.tab]();
+ const keep=document.activeElement&&document.activeElement.id==="msg";
+ $("#appbar").innerHTML=v.bar;$("#pin").innerHTML=v.pin||"";$("#screen").innerHTML=v.body;$("#cta").innerHTML=v.cta||"";
+ const ov=$("#overlay");ov.querySelector(".fab")?.remove();if(v.fab)ov.insertAdjacentHTML("afterbegin",v.fab);
+ $("#tabs").hidden=!!v.noTabs;
+ const u=unreadTotal();
+ $("#tabs").innerHTML=TABS.map(([k,l,ic])=>'<button data-tab="'+k+'"'+(S.tab===k?' aria-current="page"':'')+'>'+I[ic]+l+(k==="chat"&&u?'<span class="dot">'+u+'</span>':'')+'</button>').join("");
+ if(top&&top.chat){const sc=$("#screen");sc.scrollTop=sc.scrollHeight;if(keep)$("#msg").focus()}
+}
+
+const phone=document.getElementById("phone");
+phone.addEventListener("click",e=>{
+ const t=e.target.closest("button,[data-close]");if(!t)return;const d=t.dataset;
+ if(d.close!==undefined&&e.target!==t)return;
+ if(d.close!==undefined||d.x!==undefined){$("#overlay").querySelector(".sheet")?.remove();return}
+ if(d.tab)return go(d.tab);
+ if(d.go){if(d.go==="list"){S.type="전체"}if(d.go==="shop")S.mshop="list";return go(d.go)}
+ if(d.center!==undefined){S.type="센터";return go("list")}
+ if(d.price!==undefined){S.mshop="price";return go("shop")}
+ if(d.mshop){S.mshop=d.mshop;return render()}
+ if(d.catgo){S.cat=d.catgo==="helmet"?"helmet":"tune";S.fitOnly=false;return go("market")}
+ if(d.fitgo!==undefined){S.fitOnly=true;S.cat="all";S.skind="전체";return go("market")}
+ if(d.push)return push({view:d.push});
+ if(d.bike)return push({bike:+d.bike});
+ if(d.shop)return push({shop:+d.shop});
+ if(d.prod)return push({prod:+d.prod});
+ if(d.thread)return push({chat:d.thread});
+ if(d.back!==undefined)return pop();
+ if(d.f){S[d.f]=d.v;return render()}
+ if(d.clearq!==undefined){S.q="";return render()}
+ if(d.svc){S.svc=d.svc;return render()}
+ if(d.cat){S.cat=d.cat;return render()}
+ if(d.skind){S.skind=d.skind;return render()}
+ if(d.fit!==undefined){S.fitOnly=!S.fitOnly;return render()}
+ if(d.rt){S.regType=d.rt;return render()}
+ if(d.jk){S.jk=d.jk;return render()}
+ if(d.lookup!==undefined){S.lookup=true;render();return toast("조회 완료 (예시 결과)")}
+ if(d.guide!==undefined)return openSheet(null);
+ if(d.pay)return openSheet(+d.pay);
+ if(d.next!==undefined){if(S.pay<4){S.pay++;openSheet.draw()}else{$("#overlay").querySelector(".sheet")?.remove();toast("거래가 완료됐어요. 판매자에게 정산됩니다.")}return}
+ if(d.chatbike)return openChat("bike",+d.chatbike);
+ if(d.chatprod)return openChat("prod",+d.chatprod);
+ if(d.chatshop)return openChat("shop",+d.chatshop);
+ if(d.q){const f=$("#chatForm");if(f)sendMsg(f.dataset.th,d.q);return}
+ if(d.addcart!==undefined){S.cart++;render();return toast("장바구니에 담았어요")}
+ if(d.toast)return toast(d.toast);
+});
+phone.addEventListener("submit",e=>{
+ e.preventDefault();const f=e.target;
+ if(f.id==="homeSearch"){S.q=$("#q").value.trim();S.type="전체";S.ccf="전체";return go("list")}
+ if(f.id==="chatForm"){const inp=$("#msg");const v=inp.value;inp.value="";sendMsg(f.dataset.th,v);setTimeout(()=>$("#msg")?.focus(),0);return}
+ if(f.id==="regForm")return toast("검수 요청을 보냈어요. 보통 하루 안에 공개돼요 (데모)");
+ if(f.id==="joinForm")return toast("입점 신청이 접수됐어요. 심사 결과는 알림으로 보내드려요 (데모)");
+});
+render();
+</script>
+
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+</script>
+</body>
+</html>
